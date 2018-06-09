@@ -1,0 +1,10 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bolshev/auth-service.git"
+  }
+}
