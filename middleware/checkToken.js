@@ -8,6 +8,7 @@ const checkToken = function (req, res, next) {
         jsonWebToken.verify(token, config.secretPhrase, function (err, decoded) {
             if (err) {
                 res.json({
+                    error: true,
                     code: 401,
                     message: "Failed to authenticate token",
                     data: {}
