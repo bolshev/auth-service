@@ -27,7 +27,16 @@ Storage.prototype.initDao = function () {
     const UserDefinition = require('./dao/user');
     const UserDao = this.createModel(UserDefinition.name, UserDefinition.options, UserDefinition.functions);
 
-    UserDao.sync();
+    // force: true will drop the table if it already exists
+    UserDao.sync().then(() => {
+        // Table created
+        const jsonWebToken = require('jsonwebtoken');
+        return UserDao.create({
+            login: 'admin',
+            name: 'Administrator',
+            password: jsonWebToken.sign('secret', config.secretPhrase)
+        });
+    });
 };
 
 Storage.prototype.getDao = function (name) {
