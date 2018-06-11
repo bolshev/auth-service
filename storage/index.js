@@ -48,30 +48,6 @@ Storage.prototype.initDao = function () {
     SystemDao.sync();
     PropertyDao.sync();
     UserSystemDao.sync();
-
-    // force: true will drop the table if it already exists
-    UserDao.sync().then(() => {
-        // Table created
-        const jsonWebToken = require('jsonwebtoken');
-        UserDao.create({
-            login: 'admin',
-            name: 'Administrator',
-            password: jsonWebToken.sign('secret', config.secretPhrase)
-        }).then(user => {
-            SystemDao.create({
-                systemName: 'sis'
-            }).then(system => {
-                system.addUser(user).then(value => {
-                    PropertyDao.create({
-                        'propertyKey': 'key1',
-                        'propertyValue': 'value1',
-                        'systemSystemId': system.systemId,
-                        'userLogin': user.login
-                    })
-                });
-            });
-        });
-    });
 };
 
 Storage.prototype.getDao = function (name) {
