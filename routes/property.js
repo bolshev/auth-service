@@ -24,6 +24,16 @@ router
     .route("/:systemId/:userId")
     // add user's system property
     .post(function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const User = storage.getDao("user");
         const System = storage.getDao("system");
         const Property = storage.getDao("property");
@@ -60,6 +70,16 @@ router
     })
     // delete user's system properties
     .delete(function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const Property = storage.getDao("property");
 
         Property.destroy({
@@ -79,6 +99,16 @@ router
 router
 // delete user's system property
     .delete("/:systemId/:userId/:propertyId", function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const Property = storage.getDao("property");
 
         Property.findOne({

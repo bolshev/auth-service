@@ -34,6 +34,16 @@ router
         }).then(system => res.json(system || {}));
     })
     .post('/', function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const System = storage.getDao("system");
         System.findOne({
             where: {systemId: req.body.systemId},
@@ -57,6 +67,16 @@ router
         });
     })
     .put('/:systemId', function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         if (req.systemId !== req.body.systemId) {
             res.status(406).json({
                 error: true,
@@ -91,33 +111,34 @@ router
         });
     })
     .delete('/:systemId', function (req, res) {
-        if (req.isAdmin) {
-            const System = storage.getDao("system");
-            System.findById(req.systemId).then(system => {
-                if (system) {
-                    system.destroy();
-                    res.json({
-                        code: 200,
-                        message: 'System deleted',
-                        data: {}
-                    });
-                } else {
-                    res.status(404).json({
-                        error: true,
-                        code: 404,
-                        message: 'System not found',
-                        data: {}
-                    });
-                }
-            });
-        } else {
+        if (!req.isAdmin) {
             res.status(406).json({
                 error: true,
                 code: 406,
-                message: 'Current user have not rights to delete systems',
+                message: 'Current user have not rights to do this action',
                 data: {}
             });
+            return;
         }
+
+        const System = storage.getDao("system");
+        System.findById(req.systemId).then(system => {
+            if (system) {
+                system.destroy();
+                res.json({
+                    code: 200,
+                    message: 'System deleted',
+                    data: {}
+                });
+            } else {
+                res.status(404).json({
+                    error: true,
+                    code: 404,
+                    message: 'System not found',
+                    data: {}
+                });
+            }
+        });
     });
 
 router
@@ -140,6 +161,16 @@ router
     })
     // add/activate user in system
     .post(function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const User = storage.getDao("user");
         const System = storage.getDao("system");
         System.findOne({
@@ -169,41 +200,42 @@ router
     })
     // deactivate user in system
     .delete(function (req, res) {
-        if (req.isAdmin) {
-            const User = storage.getDao("user");
-            const System = storage.getDao("system");
-            System.findOne({
-                where: {systemId: req.systemId},
-            }).then(system => {
-                User.findOne({
-                    where: {login: req.userId},
-                }).then(user => {
-                    if (system && user) {
-                        system.removeUser(user).then(() => {
-                            res.json({
-                                code: 200,
-                                message: 'User was removed from System',
-                                data: {}
-                            })
-                        })
-                    } else {
-                        res.status(404).json({
-                            error: true,
-                            code: 404,
-                            message: 'System or user is not found',
-                            data: {}
-                        });
-                    }
-                })
-            });
-        } else {
+        if (!req.isAdmin) {
             res.status(406).json({
                 error: true,
                 code: 406,
-                message: 'Current user have not rights to to this action',
+                message: 'Current user have not rights to do this action',
                 data: {}
             });
+            return;
         }
+
+        const User = storage.getDao("user");
+        const System = storage.getDao("system");
+        System.findOne({
+            where: {systemId: req.systemId},
+        }).then(system => {
+            User.findOne({
+                where: {login: req.userId},
+            }).then(user => {
+                if (system && user) {
+                    system.removeUser(user).then(() => {
+                        res.json({
+                            code: 200,
+                            message: 'User was removed from System',
+                            data: {}
+                        })
+                    })
+                } else {
+                    res.status(404).json({
+                        error: true,
+                        code: 404,
+                        message: 'System or user is not found',
+                        data: {}
+                    });
+                }
+            })
+        });
     });
 
 module.exports = router;

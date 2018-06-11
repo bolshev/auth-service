@@ -38,6 +38,16 @@ router
     })
     // create new user
     .post('/', function (req, res) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         const User = storage.getDao("user");
         User.findOne({
             where: {login: req.body.login},
@@ -66,6 +76,16 @@ router
     })
     // update user
     .put('/:userId', function (req, res, next) {
+        if (!req.isAdmin) {
+            res.status(406).json({
+                error: true,
+                code: 406,
+                message: 'Current user have not rights to do this action',
+                data: {}
+            });
+            return;
+        }
+
         if (req.userId !== req.body.login) {
             res.status(406).json({
                 error: true,
@@ -106,33 +126,34 @@ router
     })
     // delete user
     .delete('/:userId', function (req, res) {
-        if (req.isAdmin) {
-            const User = storage.getDao("user");
-            User.findById(req.userId).then(user => {
-                if (user) {
-                    user.destroy();
-                    res.json({
-                        code: 200,
-                        message: 'User deleted',
-                        data: {}
-                    });
-                } else {
-                    res.status(404).json({
-                        error: true,
-                        code: 404,
-                        message: 'User not found',
-                        data: {}
-                    });
-                }
-            });
-        } else {
+        if (!req.isAdmin) {
             res.status(406).json({
                 error: true,
                 code: 406,
-                message: 'Current user have not rights to delete users',
+                message: 'Current user have not rights to do this action',
                 data: {}
             });
+            return;
         }
+
+        const User = storage.getDao("user");
+        User.findById(req.userId).then(user => {
+            if (user) {
+                user.destroy();
+                res.json({
+                    code: 200,
+                    message: 'User deleted',
+                    data: {}
+                });
+            } else {
+                res.status(404).json({
+                    error: true,
+                    code: 404,
+                    message: 'User not found',
+                    data: {}
+                });
+            }
+        });
     });
 
 module.exports = router;
