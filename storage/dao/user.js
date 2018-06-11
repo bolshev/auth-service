@@ -1,5 +1,4 @@
 const Sequelize = require('sequelize');
-const config = require('../../config/_config');
 
 const user = {
     name: 'user',

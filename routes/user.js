@@ -21,10 +21,20 @@ router
     // get user by id
     .get('/:userId', function (req, res) {
         const User = storage.getDao("user");
+        const System = storage.getDao("system");
+
         User.findOne({
             where: {login: req.userId},
-            attributes: {exclude: ['password', 'admin']}
-        }).then(users => res.json(users || []));
+            attributes: {exclude: ['password', 'admin']},
+            include: [{
+                model: System,
+                as: 'systems',
+                required: false,
+                through: {
+                    where: {active: true}
+                }
+            }]
+        }).then(user => res.json(user || {}));
     })
     // create new user
     .post('/', function (req, res) {
